@@ -1,19 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { Package, LayoutDashboard, ShoppingBag, Truck, Info } from 'lucide-react'
+import { Package, LayoutDashboard, ShoppingBag, Truck, Info, Menu, X } from 'lucide-react'
 
 const links = [
-  { to: '/',         label: 'Panel',   icon: LayoutDashboard, end: true },
-  { to: '/products', label: 'Ürünler', icon: ShoppingBag },
+  { to: '/',         label: 'Panel',      icon: LayoutDashboard, end: true },
+  { to: '/products', label: 'Ürünler',    icon: ShoppingBag },
   { to: '/orders',   label: 'Siparişler', icon: Truck },
-  { to: '/about',    label: 'Hakkında', icon: Info }
+  { to: '/about',    label: 'Hakkında',   icon: Info }
 ]
 
 export default function Navbar() {
+  const [open, setOpen] = useState(false)
+
   return (
     <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur border-b border-line">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center gap-2">
-        <Link to="/" className="flex items-center gap-2.5 mr-4 shrink-0">
+        <Link to="/" className="flex items-center gap-2.5 mr-4 shrink-0" onClick={() => setOpen(false)}>
           <span className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
             <Package className="w-5 h-5 text-primary" strokeWidth={2.5} />
           </span>
@@ -22,7 +24,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1 ml-auto">
+        <nav className="hidden md:flex items-center gap-1 ml-auto">
           {links.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -38,11 +40,45 @@ export default function Navbar() {
               }
             >
               <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{label}</span>
+              <span>{label}</span>
             </NavLink>
           ))}
         </nav>
+
+        <button
+          onClick={() => setOpen(v => !v)}
+          className="md:hidden ml-auto p-2 rounded-btn hover:bg-bg text-secondary"
+          aria-label="Menüyü aç"
+        >
+          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
+
+      {open && (
+        <nav className="md:hidden border-t border-line bg-surface animate-fade-in">
+          <div className="max-w-6xl mx-auto px-4 py-2 flex flex-col">
+            {links.map(({ to, label, icon: Icon, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  [
+                    'flex items-center gap-2 px-3 py-3 rounded-btn text-body font-semibold transition',
+                    isActive
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-secondary hover:bg-bg'
+                  ].join(' ')
+                }
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+      )}
     </header>
   )
 }
