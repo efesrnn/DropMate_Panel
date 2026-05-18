@@ -1,15 +1,16 @@
 import React, { useMemo, useState } from 'react'
-import { Search, Filter } from 'lucide-react'
+import { Search, Filter, Plus } from 'lucide-react'
 import ProductCard from '../components/ProductCard.jsx'
+import ProductForm from '../components/ProductForm.jsx'
+import Modal from '../components/Modal.jsx'
 import { PRODUCT_CATEGORIES } from '../interfaces/Product.js'
 import { MOCK_PRODUCTS } from '../data/mockProducts.js'
 
 export default function Products() {
-  // For this commit the list is purely from mock data; persistence
-  // and CRUD come in later commits.
-  const [products] = useState(MOCK_PRODUCTS)
+  const [products, setProducts] = useState(MOCK_PRODUCTS)
   const [query, setQuery] = useState('')
-  const [cat, setCat]   = useState('Hepsi')
+  const [cat, setCat]     = useState('Hepsi')
+  const [adding, setAdding] = useState(false)
 
   const filtered = useMemo(() => {
     return products.filter(p => {
@@ -21,6 +22,15 @@ export default function Products() {
     })
   }, [products, query, cat])
 
+  const addProduct = (data) => {
+    const id = `p_${Date.now()}`
+    setProducts(list => [
+      { id, createdAt: new Date().toISOString(), ...data },
+      ...list
+    ])
+    setAdding(false)
+  }
+
   return (
     <section>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
@@ -30,6 +40,9 @@ export default function Products() {
             {filtered.length} ürün gösteriliyor · toplam {products.length} kayıt
           </p>
         </div>
+        <button onClick={() => setAdding(true)} className="btn-primary">
+          <Plus className="w-4 h-4" /> Yeni ürün
+        </button>
       </div>
 
       <div className="card mb-6 flex flex-col md:flex-row gap-3">
@@ -68,6 +81,10 @@ export default function Products() {
           ))}
         </div>
       )}
+
+      <Modal open={adding} onClose={() => setAdding(false)} title="Yeni ürün ekle">
+        <ProductForm onSubmit={addProduct} onCancel={() => setAdding(false)} />
+      </Modal>
     </section>
   )
 }
